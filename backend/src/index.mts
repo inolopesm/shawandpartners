@@ -1,12 +1,18 @@
 import fastify from "fastify";
 import fastifyMultipart from "@fastify/multipart";
+import fastifyPostgres from "@fastify/postgres";
 import { parse } from "csv-parse";
+import env from "env-var";
 
 const app = fastify();
 
 app.register(fastifyMultipart);
 
-app.post("/api/files", async (req, reply) => {
+app.register(fastifyPostgres, {
+  connectionString: env.get("POSTGRES_URL").required().asString(),
+});
+
+app.post("/api/files", async function (req, reply) {
   const data = await req.file();
 
   if (data === undefined) {
@@ -14,14 +20,20 @@ app.post("/api/files", async (req, reply) => {
     return { message: "file not found" };
   }
 
-  const parser = data.file.pipe(parse());
+  await this.pg.transact(async (client) => {
+    const parser = data.file.pipe(parse({ columns: true }));
 
-  for await (const data of parser) {
-    const [name, city, country, favoriteSport] = data;
-    console.log({ name, city, country, favoriteSport });
-  }
+    for await (const data of parser) {
+      const { name, city, country, favorite_sport: favoriteSport } = data;
+
+      await client.query(
+        'INSERT INTO "User" ("name", "city", "country", "favoriteSport") VALUES ($1, $2, $3, $4)',
+        [name, city, country, favoriteSport]
+      );
+    }
+  });
 
   return null;
 });
 
-app.listen({ port: 3000 });
+app.listen({ port: env.get("PORT").required().asPortNumber() });
