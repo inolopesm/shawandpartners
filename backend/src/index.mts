@@ -1,4 +1,5 @@
 import fastify from "fastify";
+import fastifyCors from "@fastify/cors";
 import fastifyMultipart from "@fastify/multipart";
 import fastifyPostgres from "@fastify/postgres";
 import { parse } from "csv-parse";
@@ -6,6 +7,7 @@ import env from "env-var";
 
 const app = fastify();
 
+app.register(fastifyCors);
 app.register(fastifyMultipart);
 
 app.register(fastifyPostgres, {

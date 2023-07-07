@@ -7,6 +7,7 @@
     "dev": "rimraf dist && tsc && concurrently \"tsc --watch\" \"node --watch -r dotenv/config dist/index.mjs\""
   },
   "dependencies": {
+    "@fastify/cors": "^8.3.0",
     "@fastify/multipart": "^7.7.0",
     "@fastify/postgres": "^5.2.0",
     "csv-parse": "^5.4.0",
