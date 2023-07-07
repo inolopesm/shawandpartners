@@ -1,15 +1,22 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "scripts": {
+    "start": "node dist/index.mjs",
+    "build": "tsc",
+    "dev": "rimraf dist && tsc && concurrently \"tsc --watch\" \"node --watch dist/index.mjs\""
+  },
   "dependencies": {
     "fastify": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.19",
+    "concurrently": "^8.2.0",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.1.6"
   },
   "engines": {
     "node": "^18.16.1",
     "npm": "^9.5.1"
-  },
-  "devDependencies": {
-    "@types/node": "^18.16.19",
-    "typescript": "^5.1.6"
   }
 }
