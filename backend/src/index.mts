@@ -5,6 +5,14 @@ import fastifyPostgres from "@fastify/postgres";
 import { parse } from "csv-parse";
 import env from "env-var";
 
+interface User {
+  id: number;
+  name: string;
+  city: string;
+  country: string;
+  favoriteSport: string;
+}
+
 const app = fastify();
 
 app.register(fastifyCors);
@@ -36,6 +44,14 @@ app.post("/api/files", async function (req, reply) {
   });
 
   return null;
+});
+
+app.get("/api/users", async function () {
+  const { rows: users } = await this.pg.query<User>(
+    'SELECT "id", "name", "city", "country", "favoriteSport" FROM "User"'
+  );
+
+  return users;
 });
 
 app.listen({ port: env.get("PORT").required().asPortNumber() });
