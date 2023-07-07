@@ -1,6 +1,6 @@
-import { createInterface } from "node:readline";
 import fastify from "fastify";
 import fastifyMultipart from "@fastify/multipart";
+import { parse } from "csv-parse";
 
 const app = fastify();
 
@@ -14,10 +14,11 @@ app.post("/api/files", async (req, reply) => {
     return { message: "file not found" };
   }
 
-  const rl = createInterface({ input: data.file });
+  const parser = data.file.pipe(parse());
 
-  for await (const line of rl) {
-    console.log(line);
+  for await (const data of parser) {
+    const [name, city, country, favoriteSport] = data;
+    console.log({ name, city, country, favoriteSport });
   }
 
   return null;
