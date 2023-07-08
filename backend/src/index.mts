@@ -46,10 +46,28 @@ app.post("/api/files", async function (req, reply) {
   return null;
 });
 
-app.get("/api/users", async function () {
-  const { rows: users } = await this.pg.query<User>(
-    'SELECT "id", "name", "city", "country", "favoriteSport" FROM "User"'
-  );
+app.get("/api/users", async function ({ query }) {
+  const { q } = query as Record<string, string>;
+
+  let sql = `
+    SELECT "id", "name", "city", "country", "favoriteSport"
+    FROM "User"
+  `;
+
+  const values: any[] = [];
+
+  if (q) {
+    sql += `
+      WHERE "name" LIKE $1
+        OR "city" LIKE $2
+        OR "country" LIKE $3
+        OR "favoriteSport" LIKE $4
+    `;
+
+    values.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
+  }
+
+  const { rows: users } = await this.pg.query<User>(sql, values);
 
   return users;
 });
